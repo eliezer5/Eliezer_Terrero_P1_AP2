@@ -116,8 +116,8 @@ class VentaViewModel @Inject constructor(
 
 
     private fun onChangeTotalDescontado(){
-        val galones = uiState.value.galones?: 0.0
-        val descuento = uiState.value.descuentoGalon?: 0.0
+        val galones = _uiState.value.galones?: 0.0
+        val descuento = _uiState.value.descuentoGalon?: 0.0
 
         val totaldes = galones * descuento
         _uiState.update {

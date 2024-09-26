@@ -148,14 +148,10 @@ fun AddVentaBodyScreen(
                     Icon(imageVector = Icons.Default.Add, contentDescription = "Guardar")
                     Text(text = "Guardar")
                 }
-
-
-
                 if (ventaId > 0)
                     OutlinedButton(onClick = {
                         onEvent(VentaEvent.delete)
                         onEvent(VentaEvent.nuevo)
-
                     }) {
                         Icon(imageVector = Icons.Default.Delete, contentDescription = "delete")
                         Text(text = "Delete", color = Color.Red)
