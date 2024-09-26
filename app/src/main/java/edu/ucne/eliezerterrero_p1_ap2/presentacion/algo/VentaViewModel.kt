@@ -24,20 +24,29 @@ class VentaViewModel @Inject constructor(
 
     private fun save(){
         viewModelScope.launch {
-            ventaRepository.save(_uiState.value.toEntity())
+            if (validar()){
+                ventaRepository.save(_uiState.value.toEntity())
+            }
+            else {
+                _uiState.update {
+                    it.copy(
+                        errorMessage = uiState.value.errorMessage
+                    )
+                }
+            }
         }
     }
 
     private fun nuevo(){
         _uiState.update { it.copy(
             ventaId = null,
-            descuentoGalon = null,
-            precio = null,
-            galones = null,
+            descuentoGalon = 0.0,
+            precio = 0.0,
+            galones = 0.0,
             errorMessage = "",
             nombreEmpresa = "",
-            totalDescontado = null,
-            total = null
+            totalDescontado = 0.0,
+            total = 0.0
         ) }
     }
 
@@ -47,11 +56,11 @@ class VentaViewModel @Inject constructor(
             if (id > 0){
                 _uiState.update { it.copy(
                     ventaId = venta.ventaId,
-                    descuentoGalon = venta.descuentoGalon,
+                    descuentoGalon = venta.descuentoGalon ?: 0.0,
                     precio = venta.precio,
                     galones = venta.galones,
-                    nombreEmpresa = venta.nombreEmpresa,
-                    totalDescontado = venta.totalDescontado,
+                    nombreEmpresa = venta.nombreEmpresa?: "",
+                    totalDescontado = venta.totalDescontado?: 0.0,
                     total = venta.total
                 ) }
             }
@@ -70,26 +79,29 @@ class VentaViewModel @Inject constructor(
         }
     }
 
-    private fun onChangePrecio(precio: Double){
+    private fun onChangePrecio(precio: String){
+        val newPrecio = precio.toDouble()
         _uiState.update {
             it.copy(
-                descuentoGalon = precio
+                precio = newPrecio
             )
         }
     }
 
-    private fun onChangeDescuentoGalon(galon: Double){
+    private fun onChangeDescuentoGalon(galon: String){
+        val newDescuento = galon.toDouble()
         _uiState.update {
             it.copy(
-                descuentoGalon = galon
+                descuentoGalon = newDescuento
             )
         }
     }
 
-    private fun onChangeGalon(galon: Double){
+    private fun onChangeGalon(galon: String){
+        val newGalon = galon.toDouble()
         _uiState.update {
             it.copy(
-                galones = galon
+                galones = newGalon
             )
         }
     }
@@ -103,12 +115,65 @@ class VentaViewModel @Inject constructor(
     }
 
 
-    private fun onChangeTotalDescontado(totalDescuento: Double){
+    private fun onChangeTotalDescontado(){
+        val galones = uiState.value.galones?: 0.0
+        val descuento = uiState.value.descuentoGalon?: 0.0
+
+        val totaldes = galones * descuento
         _uiState.update {
             it.copy(
-                totalDescontado = totalDescuento
+                totalDescontado = totaldes
             )
         }
+    }
+
+     fun validar(): Boolean{
+        if(uiState.value.nombreEmpresa.isBlank() ){
+            _uiState.update {
+                it.copy(
+                    errorMessage = "Nombre vacio"
+                )
+
+            }
+            return false
+        }
+
+        if(uiState.value.galones == null ){
+            _uiState.update {
+                it.copy(
+                    errorMessage = "galones vacio"
+                )
+
+            }
+            return false
+        }
+
+        if(uiState.value.descuentoGalon == null ){
+            _uiState.update {
+                it.copy(
+                    errorMessage = "descuento vacio"
+                )
+
+            }
+            return false
+        }
+
+        if(uiState.value.precio == null ){
+            _uiState.update {
+                it.copy(
+                    errorMessage = "precio vacio"
+                )
+
+            }
+            return false
+        }
+
+         _uiState.update {
+             it.copy(
+                 errorMessage = "Guardado Correctamente"
+             )
+         }
+        return true
     }
 
 
@@ -120,18 +185,19 @@ class VentaViewModel @Inject constructor(
         }
     }
 
-    fun onEvent(event: VentaIntent){
+    fun onEvent(event: VentaEvent){
         when(event){
-            VentaIntent.delete -> delete()
-            is VentaIntent.editarVenta -> editarVenta(event.id)
-            VentaIntent.nuevo -> nuevo()
-            is VentaIntent.onChangeDescuentoGalon -> onChangeDescuentoGalon(event.DescuentoGalon)
-            is VentaIntent.onChangeGalones -> onChangeGalon(event.galon)
-            is VentaIntent.onChangeNombre -> onChangeNombre(event.nombre)
-            is VentaIntent.onChangePrecio -> onChangePrecio(event.precio)
-            is VentaIntent.onChangeTotal -> onChangeTotal(event.total)
-            is VentaIntent.onChangeTotalDescuento -> onChangeTotalDescontado(event.totalDescuento)
-            VentaIntent.save -> save()
+            is VentaEvent.onChangeNombre -> onChangeNombre(event.nombre)
+            VentaEvent.delete -> delete()
+            is VentaEvent.editarVenta -> editarVenta(event.id)
+            VentaEvent.nuevo -> nuevo()
+            is VentaEvent.onChangeDescuentoGalon -> onChangeDescuentoGalon(event.DescuentoGalon)
+            is VentaEvent.onChangeGalones -> onChangeGalon(event.galon)
+            is VentaEvent.onChangePrecio -> onChangePrecio(event.precio)
+            is VentaEvent.onChangeTotal -> onChangeTotal(event.total)
+
+            VentaEvent.save -> save()
+            is VentaEvent.onChangeTotalDescuento -> onChangeTotalDescontado()
         }
     }
 

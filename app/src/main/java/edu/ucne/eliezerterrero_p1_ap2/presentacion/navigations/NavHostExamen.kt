@@ -9,6 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import edu.ucne.eliezerterrero_p1_ap2.presentacion.algo.AddVentaScreen
+import edu.ucne.eliezerterrero_p1_ap2.presentacion.algo.ListVentaScreen
 
 @Composable
 fun NavHostExamen(
@@ -16,19 +19,18 @@ fun NavHostExamen(
 ) {
     NavHost(navController = navHostController, startDestination = Screen.ListScreen) {
 
-        composable<Screen.ListScreen>{
-            Scaffold() { innerPadding ->
+        composable<Screen.ListScreen> {
 
-                OutlinedButton(onClick = {navHostController.navigate(Screen.RegistroScreen(0))}, modifier = Modifier.padding(innerPadding)) {
-                    Text(text = "Click")
-                }
-            }
+
+            ListVentaScreen(
+                goToAdd = { navHostController.navigate(Screen.RegistroScreen(0)) },
+                onSelect = { navHostController.navigate(Screen.RegistroScreen(it)) }
+            )
         }
 
-        composable<Screen.RegistroScreen>{
-            Scaffold() { innerPadding ->
-                Text(text = "Estas en la siguente pantalla", modifier = Modifier.padding(innerPadding))
-            }
+        composable<Screen.RegistroScreen> {
+            val id = it.toRoute<Screen.RegistroScreen>().id
+            AddVentaScreen(goToBack = { navHostController.navigate(Screen.ListScreen) }, ventaId = id)
         }
 
     }
