@@ -1,5 +1,6 @@
 package edu.ucne.eliezerterrero_p1_ap2.presentacion.algo
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,10 +46,7 @@ fun AddVentaScreen(
         uiState = uiState,
         ventaId = ventaId,
         onEvent = { event -> viewModel.onEvent(event) })
-
-
 }
-
 
 @Composable
 fun AddVentaBodyScreen(
@@ -78,7 +76,7 @@ fun AddVentaBodyScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            Text(text = "Agregar Venta", modifier = Modifier.align(Alignment.CenterHorizontally))
+           Text(text = if(ventaId > 0) "Editar venta" else "Agregar Venta", modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(modifier = Modifier.height(20.dp))
 
             OutlinedTextField(
@@ -87,6 +85,10 @@ fun AddVentaBodyScreen(
                 onValueChange = { onEvent(VentaEvent.onChangeNombre(it)) },
                 modifier = Modifier.fillMaxWidth()
             )
+            uiState.errorMessageNombre.let { error ->
+                Text(text = error, color = Color.Red)
+            }
+
 
             OutlinedTextField(
                 label = { Text(text = "Galones") },
@@ -100,6 +102,9 @@ fun AddVentaBodyScreen(
 
 
             )
+            uiState.errorMessageGalones.let { error ->
+                Text(text = error, color = Color.Red)
+            }
 
             OutlinedTextField(
                 label = { Text(text = "Descuento por Galon") },
@@ -111,6 +116,9 @@ fun AddVentaBodyScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
+            uiState.errorMessageDescuento.let { error ->
+                Text(text = error, color = Color.Red)
+            }
 
             OutlinedTextField(
                 label = { Text(text = "Precio") },
@@ -121,6 +129,9 @@ fun AddVentaBodyScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
+            uiState.errorMessagePrecio.let { error ->
+                Text(text = error, color = Color.Red)
+            }
 
             OutlinedTextField(
                 label = { Text(text = "Total descontado") },
@@ -138,13 +149,11 @@ fun AddVentaBodyScreen(
                 readOnly = true
             )
 
-            uiState.errorMessage.let { error ->
-                Text(text = error, color = Color.Red)
-            }
 
-
+            Spacer(modifier = Modifier.height(10.dp))
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 OutlinedButton(onClick = {
                     onEvent(VentaEvent.nuevo)

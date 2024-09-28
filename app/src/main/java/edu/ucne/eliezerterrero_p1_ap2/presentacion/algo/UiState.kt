@@ -11,7 +11,11 @@ data class UiState (
     val totalDescontado: Double = 0.0,
     val total:Double? = 0.0,
     val ventas: List<VentaEntity> = emptyList(),
-    val errorMessage: String = ""
+    val errorMessageNombre: String = "",
+    val errorMessageGalones: String = "",
+    val errorMessageDescuento: String = "",
+    val errorMessagePrecio: String = ""
+
 )
 
 fun UiState.toEntity() = VentaEntity(
