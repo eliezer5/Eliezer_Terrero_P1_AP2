@@ -178,9 +178,14 @@ class VentaViewModel @Inject constructor(
 
 
     private fun onChangeTotal(total: Double){
+
+        val descontado = _uiState.value.totalDescontado
+        val galones = _uiState.value.galones?:0.0
+        val precio = _uiState.value.precio?:0.0
+        val newTotal = (precio * galones) - descontado
         _uiState.update {
             it.copy(
-                total = total
+                total = newTotal
             )
         }
     }

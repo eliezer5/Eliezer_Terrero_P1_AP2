@@ -90,39 +90,49 @@ fun AddVentaBodyScreen(
             OutlinedTextField(
                 label = { Text(text = "Galones") },
                 value = uiState.galones?.toString() ?: "",
-                onValueChange = { onEvent(VentaEvent.onChangeGalones(it)) },
+                onValueChange = {
+                    onEvent(VentaEvent.onChangeGalones(it))
+                    onEvent(VentaEvent.onChangeTotalDescuento)
+                    onEvent(VentaEvent.onChangeTotal(it.toDouble()))
+                },
                 modifier = Modifier.fillMaxWidth()
+
 
             )
 
             OutlinedTextField(
                 label = { Text(text = "Descuento por Galon") },
                 value = uiState.descuentoGalon?.toString() ?: "",
-                onValueChange = { onEvent(VentaEvent.onChangeDescuentoGalon(it)) },
+                onValueChange = {
+                    onEvent(VentaEvent.onChangeDescuentoGalon(it))
+                    onEvent(VentaEvent.onChangeTotalDescuento)
+                    onEvent(VentaEvent.onChangeTotal(it.toDouble()))
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
                 label = { Text(text = "Precio") },
                 value = uiState.precio?.toString() ?: "",
-                onValueChange = { onEvent(VentaEvent.onChangePrecio(it)) },
+                onValueChange = {
+                    onEvent(VentaEvent.onChangePrecio(it))
+                    onEvent(VentaEvent.onChangeTotal(it.toDouble()))
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
                 label = { Text(text = "Total descontado") },
                 value = uiState.totalDescontado.toString(),
-                onValueChange = {
-                    onEvent(VentaEvent.onChangeTotalDescuento)
-                },
+                onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true
             )
 
             OutlinedTextField(
                 label = { Text(text = "Total") },
-                value = uiState.totalDescontado.toString(),
-                onValueChange = { onEvent(VentaEvent.onChangeTotal(it.toDouble())) },
+                value = uiState.total.toString(),
+                onValueChange = { },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true
             )
