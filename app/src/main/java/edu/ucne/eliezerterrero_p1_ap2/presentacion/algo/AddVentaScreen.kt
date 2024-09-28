@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -77,7 +78,7 @@ fun AddVentaBodyScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            Text(text = "Agregar Venta")
+            Text(text = "Agregar Venta", modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(modifier = Modifier.height(20.dp))
 
             OutlinedTextField(

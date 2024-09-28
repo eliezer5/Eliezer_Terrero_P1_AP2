@@ -19,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -53,26 +54,27 @@ fun ListVentaBodyScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            Text(text = "Lista Ventas")
+            Text(text = "Lista Ventas", modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(modifier = Modifier.height(20.dp))
 
             Row (
                 modifier = Modifier.fillMaxWidth()
             ){
-                Text(
-                    text = "Id",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.weight(1f)
-                )
+
 
                 Text(
                     text = "Nombre",
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.weight(1f)
                 )
+                Text(
+                    text = "Galones",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.weight(1f)
+                )
 
                 Text(
-                    text = "DescuentoGalon",
+                    text = "Descuento Galon",
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.weight(1f)
                 )
@@ -113,14 +115,15 @@ fun VentaRow(it: VentaEntity, onSelect: (Int) -> Unit){
             .clickable { onSelect(it.ventaId ?: 0) }
             .fillMaxSize()
     ){
-        Text(
-            text = it.ventaId.toString(),
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.weight(1f)
-        )
+
 
         Text(
             text = it.nombreEmpresa?:"",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = it.galones.toString(),
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.weight(1f)
         )
