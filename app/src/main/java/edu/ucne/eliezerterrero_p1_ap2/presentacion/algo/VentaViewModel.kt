@@ -159,6 +159,16 @@ class VentaViewModel @Inject constructor(
             return false
         }
 
+         if(uiState.value.descuentoGalon!! > (uiState.value.precio ?: 0.0)){
+             _uiState.update {
+                 it.copy(
+                     errorMessage = "el descuento no puede ser mayor al precio"
+                 )
+
+             }
+             return false
+         }
+
         if(uiState.value.precio == null ){
             _uiState.update {
                 it.copy(
