@@ -3,6 +3,7 @@ package edu.ucne.eliezerterrero_p1_ap2.presentacion.algo
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import edu.ucne.eliezerterrero_p1_ap2.local.data.entities.VentaEntity
 import edu.ucne.eliezerterrero_p1_ap2.repository.VentaRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -67,9 +68,9 @@ class VentaViewModel @Inject constructor(
         }
     }
 
-    private fun delete(){
+    private fun delete(venta: VentaEntity){
         viewModelScope.launch {
-            ventaRepository.delete(_uiState.value.toEntity())
+            ventaRepository.delete(venta)
         }
     }
 
@@ -193,7 +194,7 @@ class VentaViewModel @Inject constructor(
     fun onEvent(event: VentaEvent){
         when(event){
             is VentaEvent.onChangeNombre -> onChangeNombre(event.nombre)
-            VentaEvent.delete -> delete()
+            is VentaEvent.delete -> delete(event.venta)
             is VentaEvent.editarVenta -> editarVenta(event.id)
             VentaEvent.nuevo -> nuevo()
             is VentaEvent.onChangeDescuentoGalon -> onChangeDescuentoGalon(event.DescuentoGalon)
