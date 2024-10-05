@@ -3,6 +3,7 @@ package edu.ucne.eliezerterrero_p1_ap2.presentacion.algo
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import edu.ucne.eliezerterrero_p1_ap2.local.data.entities.VentaEntity
 import edu.ucne.eliezerterrero_p1_ap2.repository.VentaRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class VentaViewModel @Inject constructor(
     private val ventaRepository: VentaRepository
-): ViewModel() {
+) : ViewModel() {
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 
@@ -22,64 +23,66 @@ class VentaViewModel @Inject constructor(
         getVentas()
     }
 
-    private fun save(){
+    private fun save() {
         viewModelScope.launch {
-            if (validar()){
+            if (validar()) {
                 ventaRepository.save(_uiState.value.toEntity())
+                nuevo()
             }
-            else {
+        }
+    }
+
+    private fun nuevo() {
+        _uiState.update {
+            it.copy(
+                ventaId = null,
+                descuentoGalon = 0.0,
+                precio = 0.0,
+                galones = 0.0,
+                errorMessageNombre = "",
+                errorMessageGalones = "",
+                errorMessageDescuento = "",
+                errorMessagePrecio = "",
+                nombreEmpresa = "",
+                totalDescontado = 0.0,
+                total = 0.0
+            )
+        }
+    }
+
+    private fun editarVenta(id: Int) {
+        viewModelScope.launch {
+            val venta = ventaRepository.getAlgo(id)
+            if (id > 0) {
                 _uiState.update {
                     it.copy(
-                        errorMessage = uiState.value.errorMessage
+                        ventaId = venta.ventaId,
+                        descuentoGalon = venta.descuentoGalon ?: 0.0,
+                        precio = venta.precio,
+                        galones = venta.galones,
+                        nombreEmpresa = venta.nombreEmpresa ?: "",
+                        totalDescontado = venta.totalDescontado ?: 0.0,
+                        total = venta.total
                     )
                 }
             }
         }
     }
 
-    private fun nuevo(){
-        _uiState.update { it.copy(
-            ventaId = null,
-            descuentoGalon = 0.0,
-            precio = 0.0,
-            galones = 0.0,
-            errorMessage = "",
-            nombreEmpresa = "",
-            totalDescontado = 0.0,
-            total = 0.0
-        ) }
-    }
-
-    private fun editarVenta(id: Int){
+    private fun delete(venta: VentaEntity) {
         viewModelScope.launch {
-            val venta = ventaRepository.getAlgo(id)
-            if (id > 0){
-                _uiState.update { it.copy(
-                    ventaId = venta.ventaId,
-                    descuentoGalon = venta.descuentoGalon ?: 0.0,
-                    precio = venta.precio,
-                    galones = venta.galones,
-                    nombreEmpresa = venta.nombreEmpresa?: "",
-                    totalDescontado = venta.totalDescontado?: 0.0,
-                    total = venta.total
-                ) }
-            }
+            ventaRepository.delete(venta)
         }
     }
 
-    private fun delete(){
+    private fun getVentas() {
         viewModelScope.launch {
-            ventaRepository.delete(_uiState.value.toEntity())
+            ventaRepository.getAlgos()
+                .collect { ventas -> _uiState.update { it.copy(ventas = ventas) } }
         }
     }
 
-    private fun getVentas(){
-        viewModelScope.launch {
-            ventaRepository.getAlgos().collect{ventas -> _uiState.update { it.copy( ventas = ventas) }}
-        }
-    }
-
-    private fun onChangePrecio(precio: String){
+    private fun onChangePrecio(precio: String) {
         val newPrecio = precio.toDouble()
         _uiState.update {
             it.copy(
@@ -88,7 +91,7 @@ class VentaViewModel @Inject constructor(
         }
     }
 
-    private fun onChangeDescuentoGalon(galon: String){
+    private fun onChangeDescuentoGalon(galon: String) {
         val newDescuento = galon.toDouble()
         _uiState.update {
             it.copy(
@@ -97,7 +100,7 @@ class VentaViewModel @Inject constructor(
         }
     }
 
-    private fun onChangeGalon(galon: String){
+    private fun onChangeGalon(galon: String) {
         val newGalon = galon.toDouble()
         _uiState.update {
             it.copy(
@@ -106,7 +109,7 @@ class VentaViewModel @Inject constructor(
         }
     }
 
-    private fun onChangeNombre(nombre: String){
+    private fun onChangeNombre(nombre: String) {
         _uiState.update {
             it.copy(
                 nombreEmpresa = nombre
@@ -114,10 +117,9 @@ class VentaViewModel @Inject constructor(
         }
     }
 
-
-    private fun onChangeTotalDescontado(){
-        val galones = _uiState.value.galones?: 0.0
-        val descuento = _uiState.value.descuentoGalon?: 0.0
+    private fun onChangeTotalDescontado() {
+        val galones = _uiState.value.galones ?: 0.0
+        val descuento = _uiState.value.descuentoGalon ?: 0.0
 
         val totaldes = galones * descuento
         _uiState.update {
@@ -126,69 +128,57 @@ class VentaViewModel @Inject constructor(
             )
         }
     }
+    fun validar(): Boolean {
+        var error = false
 
-     fun validar(): Boolean{
-        if(uiState.value.nombreEmpresa.isBlank() ){
-            _uiState.update {
-                it.copy(
-                    errorMessage = "Nombre vacio"
-                )
-
-            }
-            return false
-        }
-
-        if(uiState.value.galones == null ){
-            _uiState.update {
-                it.copy(
-                    errorMessage = "galones vacio"
-                )
-
-            }
-            return false
-        }
-
-        if(uiState.value.descuentoGalon == null ){
-            _uiState.update {
-                it.copy(
-                    errorMessage = "descuento vacio"
-                )
-
-            }
-            return false
-        }
-
-        if(uiState.value.precio == null ){
-            _uiState.update {
-                it.copy(
-                    errorMessage = "precio vacio"
-                )
-
-            }
-            return false
-        }
-
-         _uiState.update {
-             it.copy(
-                 errorMessage = "Guardado Correctamente"
-             )
-         }
-        return true
-    }
-
-
-    private fun onChangeTotal(total: Double){
         _uiState.update {
             it.copy(
-                total = total
+
+                errorMessageNombre = if (uiState.value.nombreEmpresa.isBlank()) {
+                    error = true
+                    "Nombre vacio"
+                } else "",
+
+                errorMessageGalones = if (uiState.value.galones == null) {
+                    error = true
+                    "Galones vacio"
+                } else "",
+
+                errorMessageDescuento = if (uiState.value.descuentoGalon == null) {
+                    error = true
+                    "Descuento vacio"
+                } else if (uiState.value.descuentoGalon!! > (uiState.value.precio ?: 0.0)) {
+                    error = true
+                    "El descuento no puede ser mayor al precio"
+                } else "",
+
+
+                errorMessagePrecio = if (uiState.value.precio == null) {
+                    error = true
+                    "Precio vacio"
+                } else ""
+            )
+        }
+        return !error
+    }
+
+    private fun onChangeTotal(total: Double) {
+
+        val descontado = _uiState.value.totalDescontado
+        val galones = _uiState.value.galones ?: 0.0
+        val precio = _uiState.value.precio ?: 0.0
+        val newTotal = (precio * galones) - descontado
+        _uiState.update {
+            it.copy(
+                total = newTotal
             )
         }
     }
 
-    fun onEvent(event: VentaEvent){
-        when(event){
+    fun onEvent(event: VentaEvent) {
+        when (event) {
             is VentaEvent.onChangeNombre -> onChangeNombre(event.nombre)
-            VentaEvent.delete -> delete()
+            is VentaEvent.delete -> delete(event.venta)
             is VentaEvent.editarVenta -> editarVenta(event.id)
             VentaEvent.nuevo -> nuevo()
             is VentaEvent.onChangeDescuentoGalon -> onChangeDescuentoGalon(event.DescuentoGalon)

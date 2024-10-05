@@ -1,5 +1,6 @@
 package edu.ucne.eliezerterrero_p1_ap2.presentacion.algo
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -44,10 +46,7 @@ fun AddVentaScreen(
         uiState = uiState,
         ventaId = ventaId,
         onEvent = { event -> viewModel.onEvent(event) })
-
-
 }
-
 
 @Composable
 fun AddVentaBodyScreen(
@@ -77,7 +76,7 @@ fun AddVentaBodyScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            Text(text = "Agregar Venta")
+           Text(text = if(ventaId > 0) "Editar venta" else "Agregar Venta", modifier = Modifier.align(Alignment.CenterHorizontally))
             Spacer(modifier = Modifier.height(20.dp))
 
             OutlinedTextField(
@@ -86,54 +85,75 @@ fun AddVentaBodyScreen(
                 onValueChange = { onEvent(VentaEvent.onChangeNombre(it)) },
                 modifier = Modifier.fillMaxWidth()
             )
+            uiState.errorMessageNombre.let { error ->
+                Text(text = error, color = Color.Red)
+            }
+
 
             OutlinedTextField(
                 label = { Text(text = "Galones") },
                 value = uiState.galones?.toString() ?: "",
-                onValueChange = { onEvent(VentaEvent.onChangeGalones(it)) },
+                onValueChange = {
+                    onEvent(VentaEvent.onChangeGalones(it))
+                    onEvent(VentaEvent.onChangeTotalDescuento)
+                    onEvent(VentaEvent.onChangeTotal(it.toDouble()))
+                },
                 modifier = Modifier.fillMaxWidth()
 
+
             )
+            uiState.errorMessageGalones.let { error ->
+                Text(text = error, color = Color.Red)
+            }
 
             OutlinedTextField(
                 label = { Text(text = "Descuento por Galon") },
                 value = uiState.descuentoGalon?.toString() ?: "",
-                onValueChange = { onEvent(VentaEvent.onChangeDescuentoGalon(it)) },
+                onValueChange = {
+                    onEvent(VentaEvent.onChangeDescuentoGalon(it))
+                    onEvent(VentaEvent.onChangeTotalDescuento)
+                    onEvent(VentaEvent.onChangeTotal(it.toDouble()))
+                },
                 modifier = Modifier.fillMaxWidth()
             )
+            uiState.errorMessageDescuento.let { error ->
+                Text(text = error, color = Color.Red)
+            }
 
             OutlinedTextField(
                 label = { Text(text = "Precio") },
                 value = uiState.precio?.toString() ?: "",
-                onValueChange = { onEvent(VentaEvent.onChangePrecio(it)) },
+                onValueChange = {
+                    onEvent(VentaEvent.onChangePrecio(it))
+                    onEvent(VentaEvent.onChangeTotal(it.toDouble()))
+                },
                 modifier = Modifier.fillMaxWidth()
             )
+            uiState.errorMessagePrecio.let { error ->
+                Text(text = error, color = Color.Red)
+            }
 
             OutlinedTextField(
                 label = { Text(text = "Total descontado") },
                 value = uiState.totalDescontado.toString(),
-                onValueChange = {
-                    onEvent(VentaEvent.onChangeTotalDescuento)
-                },
+                onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true
             )
 
             OutlinedTextField(
                 label = { Text(text = "Total") },
-                value = uiState.totalDescontado.toString(),
-                onValueChange = { onEvent(VentaEvent.onChangeTotal(it.toDouble())) },
+                value = uiState.total.toString(),
+                onValueChange = { },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true
             )
 
-            uiState.errorMessage.let { error ->
-                Text(text = error, color = Color.Red)
-            }
 
-
+            Spacer(modifier = Modifier.height(10.dp))
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 OutlinedButton(onClick = {
                     onEvent(VentaEvent.nuevo)
@@ -148,14 +168,6 @@ fun AddVentaBodyScreen(
                     Icon(imageVector = Icons.Default.Add, contentDescription = "Guardar")
                     Text(text = "Guardar")
                 }
-                if (ventaId > 0)
-                    OutlinedButton(onClick = {
-                        onEvent(VentaEvent.delete)
-                        onEvent(VentaEvent.nuevo)
-                    }) {
-                        Icon(imageVector = Icons.Default.Delete, contentDescription = "delete")
-                        Text(text = "Delete", color = Color.Red)
-                    }
             }
         }
     }
